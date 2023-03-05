@@ -1,3 +1,5 @@
+using Nest;
+
 namespace ElasticsearchAPI.Model;
 
 public class Movie

@@ -1,8 +1,7 @@
+using Elasticsearch.Net;
 using ElasticsearchAPI.Model;
-using Microsoft.AspNetCore.Mvc;
 using Nest;
 using Newtonsoft.Json;
-using Index = Nest.Index;
 
 namespace ElasticsearchAPI.Services.Implementation;
 
@@ -34,7 +33,6 @@ public class ElasticService : IElasticService
     }
 
 
-    [HttpGet]
     public async Task<Movie> GetMovie(string title)
     {
         var searchResponse = await _client.SearchAsync<Movie>(s => s
@@ -54,7 +52,6 @@ public class ElasticService : IElasticService
         return searchResponse.Documents.SingleOrDefault() ?? throw new InvalidOperationException();
     }
 
-    [HttpGet]
     public async Task<IEnumerable<Movie>> GetAllMovies()
     {
         var searchResponse = await _client.SearchAsync<Movie>(s => s
@@ -64,7 +61,6 @@ public class ElasticService : IElasticService
         return searchResponse.Documents ?? throw new InvalidOperationException();
     }
 
-    [HttpPost]
     public async Task PostMovie(Movie movie)
     {
         var indexResponse = await _client.IndexAsync(movie, i => i.Index(IndexName));
@@ -75,12 +71,34 @@ public class ElasticService : IElasticService
         }
     }
 
-    [HttpPost]
     public async Task PostListOfMovies(IEnumerable<Movie> movieList)
     {
         var bulkResponse = await _client.BulkAsync(b => b.Index(IndexName).IndexMany(movieList));
 
         if (!bulkResponse.IsValid)
+        {
+            throw new InvalidOperationException();
+        }
+    }
+
+    public async Task UpdateMovie(string title, Movie movie)
+    {
+        
+    }
+
+    public async Task DeleteMovie(string title)
+    {
+        var deleteByQueryResponse = await _client.DeleteByQueryAsync<Movie>(d => d
+            .Query(q => q
+                .Match(m => m
+                    .Field(f => f.SeriesTitle)
+                    .Query(title)
+                )
+            )
+            .Index(IndexName)
+        );
+
+        if (!deleteByQueryResponse.IsValid)
         {
             throw new InvalidOperationException();
         }
