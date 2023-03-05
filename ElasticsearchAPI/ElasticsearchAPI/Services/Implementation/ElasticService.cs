@@ -1,6 +1,8 @@
 using ElasticsearchAPI.Model;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
+using Newtonsoft.Json;
+using Index = Nest.Index;
 
 namespace ElasticsearchAPI.Services.Implementation;
 
@@ -27,8 +29,7 @@ public class ElasticService : IElasticService
 
         if (!createIndexResponse.IsValid)
         {
-            throw new Exception(
-                $"Failed to create index '{IndexName}'. Error: {createIndexResponse.OriginalException?.Message ?? createIndexResponse.ServerError.Error.Reason}");
+            throw new InvalidOperationException();
         }
     }
 
@@ -36,24 +37,52 @@ public class ElasticService : IElasticService
     [HttpGet]
     public async Task<Movie> GetMovie(string title)
     {
-        throw new NotImplementedException();
+        var searchResponse = await _client.SearchAsync<Movie>(s => s
+            .Query(q => q
+                .Match(m => m
+                    .Field(f => f.SeriesTitle)
+                    .Query(title)
+                )
+            )
+        );
+
+        if (!searchResponse.IsValid)
+        {
+            throw new InvalidOperationException();
+        }
+
+        return searchResponse.Documents.SingleOrDefault() ?? throw new InvalidOperationException();
     }
 
     [HttpGet]
     public async Task<IEnumerable<Movie>> GetAllMovies()
     {
-        throw new NotImplementedException();
+        var searchResponse = await _client.SearchAsync<Movie>(s => s
+            .Query(q => q.MatchAll())
+        );
+
+        return searchResponse.Documents ?? throw new InvalidOperationException();
     }
 
     [HttpPost]
     public async Task PostMovie(Movie movie)
     {
-        throw new NotImplementedException();
+        var indexResponse = await _client.IndexAsync(movie, i => i.Index(IndexName));
+
+        if (!indexResponse.IsValid)
+        {
+            throw new InvalidOperationException();
+        }
     }
 
     [HttpPost]
     public async Task PostListOfMovies(IEnumerable<Movie> movieList)
     {
-        throw new NotImplementedException();
+        var bulkResponse = await _client.BulkAsync(b => b.Index(IndexName).IndexMany(movieList));
+
+        if (!bulkResponse.IsValid)
+        {
+            throw new InvalidOperationException();
+        }
     }
 }
