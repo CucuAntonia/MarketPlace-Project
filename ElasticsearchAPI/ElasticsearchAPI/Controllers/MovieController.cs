@@ -1,4 +1,7 @@
+using System.ComponentModel.DataAnnotations;
 using ElasticsearchAPI.Model;
+using ElasticsearchAPI.Services;
+using ElasticsearchAPI.Services.Implementation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ElasticsearchAPI.Controllers;
@@ -7,17 +10,52 @@ namespace ElasticsearchAPI.Controllers;
 [Route("[controller]")]
 public class MovieController : ControllerBase
 {
+    private readonly IElasticService _elasticService;
 
-    private readonly ILogger<MovieController> _logger;
-
-    public MovieController(ILogger<MovieController> logger)
+    public MovieController()
     {
-        _logger = logger;
+        _elasticService = new ElasticService();
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<Movie> Get()
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
     {
-        throw new NotImplementedException();
+        try
+        {
+            var movies = await _elasticService.GetAllMovies();
+            return Ok(movies);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet("{title}")]
+    public async Task<IActionResult> Get([Required] string title)
+    {
+        try
+        {
+            var movie = await _elasticService.GetMovie(title);
+            return Ok(movie);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Post([FromBody] Movie movie)
+    {
+        try
+        {
+            await _elasticService.PostMovie(movie);
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }
