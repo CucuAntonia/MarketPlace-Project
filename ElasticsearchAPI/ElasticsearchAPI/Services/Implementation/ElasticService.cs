@@ -36,20 +36,18 @@ public class ElasticService : IElasticService
 
     #endregion
 
-    public async Task<IEnumerable<object>> GetAllData(string dataType)
+    public async Task<IEnumerable<object>> GetAllData(string type)
     {
-        var response = await _client.SearchAsync<object>(s => s.Query(q => q.MatchAll()
-        ));
-        return response.Documents;
-    }
-
-    public Task<Movie> GetMovie(string seriesTitle)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<Movie>> GetAllMovies()
-    {
-        throw new NotImplementedException();
+        var searchResponse = await _client.SearchAsync<object>(s => s
+            .Index(IndexName)
+            .Query(q => q
+                .Match(m => m
+                    .Field("@type")
+                    .Query(type)
+                )
+            )
+        );
+        
+        return searchResponse.Documents;
     }
 }

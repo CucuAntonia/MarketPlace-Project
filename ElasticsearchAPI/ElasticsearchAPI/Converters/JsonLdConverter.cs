@@ -7,19 +7,22 @@ namespace ElasticsearchAPI.Converters;
 
 public class JsonLdConverter
 {
-    public static string MovieToJsonLd(IEnumerable<object> response)
+    public static string ObjectToJsonLd(IEnumerable<object> response,string type)
     {
-        var responseToString = JsonConvert.SerializeObject(response, Formatting.Indented);
-
+        var properResponse = JArray.Parse(JsonConvert.SerializeObject(response, Formatting.Indented));
         var contextObject = new JObject { { "@schema", "elasticsearch" } };
 
+        foreach (var value in properResponse)
+        {
+            value.First?.AddBeforeSelf(new JProperty("@id",Guid.NewGuid()));
+        }
+        
         var convertedObject = new JObject
         {
             { "@context", contextObject },
-            { "@type", "movies" },
-            { "@list", responseToString }
+            { "@type", type },
+            { "@list", properResponse }
         };
-        // de reparat formatul raspunsului ( array iau fiecare element si-l deserializez
         return JsonConvert.SerializeObject(convertedObject);
     }
 

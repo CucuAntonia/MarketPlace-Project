@@ -27,7 +27,8 @@ public class MovieController : ControllerBase
         try
         {
             var data = await _elasticService.GetAllData(data_type);
-            return Ok(JsonLdConverter.MovieToJsonLd(data));
+            
+            return Ok(JsonLdConverter.ObjectToJsonLd(data,data_type));
         }
         catch (InvalidOperationException ex)
         {
