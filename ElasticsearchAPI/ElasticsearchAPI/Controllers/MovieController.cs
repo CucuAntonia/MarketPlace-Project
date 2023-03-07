@@ -18,20 +18,18 @@ public class MovieController : ControllerBase
     }
     
     #endregion
-    
+
     [HttpGet]
-    public async Task<IActionResult> GetAllData([FromQuery]string data_type)
+    public async Task<IActionResult> GetAllData([FromQuery] string data_type)
     {
         try
         {
-            var movies = await _elasticService.GetAllMovies();
-            return Ok(movies);
+            var data = await _elasticService.GetAllData(data_type);
+            return Ok(data);
         }
         catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);
         }
-    
-    
-    
+    }
 }

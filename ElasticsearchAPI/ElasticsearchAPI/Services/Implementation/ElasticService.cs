@@ -38,7 +38,7 @@ public class ElasticService : IElasticService
 
     public async Task<IEnumerable<object>> GetAllData(string dataType)
     {
-        var response = await _client.SearchAsync<object>(s => s.Query(q => q.MatchAll(m=>m.GetType())
+        var response = await _client.SearchAsync<object>(s => s.Query(q => q.MatchAll()
         ));
         return response.Documents;
     }
