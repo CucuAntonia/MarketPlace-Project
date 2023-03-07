@@ -5,7 +5,7 @@ using Nest;
 
 namespace ElasticsearchAPI.Converters;
 
-public class JsonLdConverter
+public static class JsonLdConverter
 {
     public static string ObjectToJsonLd(IEnumerable<object> response,string type)
     {
