@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using ElasticsearchAPI.Converters;
 using ElasticsearchAPI.Model;
 using ElasticsearchAPI.Services;
 using ElasticsearchAPI.Services.Implementation;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace ElasticsearchAPI.Controllers;
 
@@ -25,7 +27,7 @@ public class MovieController : ControllerBase
         try
         {
             var data = await _elasticService.GetAllData(data_type);
-            return Ok(data);
+            return Ok(JsonLdConverter.MovieToJsonLd(data));
         }
         catch (InvalidOperationException ex)
         {
