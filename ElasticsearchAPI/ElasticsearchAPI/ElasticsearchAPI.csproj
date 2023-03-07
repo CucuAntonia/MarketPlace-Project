@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="json-ld.net" Version="1.0.7" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.3" />
         <PackageReference Include="NEST" Version="7.17.5" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3-beta1" />

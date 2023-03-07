@@ -1,8 +1,9 @@
+using System.ComponentModel.DataAnnotations;
 using Nest;
 
 namespace ElasticsearchAPI.Model;
 
-public class Movie
+public record Movie
 {
     public string PosterLink { get; set; }
     public string SeriesTitle { get; set; }

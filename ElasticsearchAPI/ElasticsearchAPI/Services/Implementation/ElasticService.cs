@@ -13,6 +13,8 @@ public class ElasticService : IElasticService
     private const string Username = "elastic";
     private const string Password = "AWbtmGda2Q7BI2bYpdjyF4qd";
 
+    #region Constructor
+
     public ElasticService()
     {
         var settings = new ConnectionSettings(new Uri(CloudUrl))
@@ -31,7 +33,23 @@ public class ElasticService : IElasticService
             throw new InvalidOperationException();
         }
     }
-    
-    
-    
+
+    #endregion
+
+    public async Task<IEnumerable<object>> GetAllData(string dataType)
+    {
+        var response = await _client.SearchAsync<object>(s => s.Query(q => q.MatchAll(m=>m.GetType())
+        ));
+        return response.Documents;
+    }
+
+    public Task<Movie> GetMovie(string seriesTitle)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<Movie>> GetAllMovies()
+    {
+        throw new NotImplementedException();
+    }
 }
