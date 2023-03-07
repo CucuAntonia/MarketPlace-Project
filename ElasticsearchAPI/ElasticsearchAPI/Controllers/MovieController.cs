@@ -42,8 +42,7 @@ public class MovieController : ControllerBase
     {
         try
         {
-            await JsonLdConverter.Populate();
-
+            //await _elasticService.PopulateMovieDb();
             return Ok();
         }
         catch (InvalidOperationException ex)
