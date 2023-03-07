@@ -1,7 +1,5 @@
-using Elasticsearch.Net;
 using ElasticsearchAPI.Model;
 using Nest;
-using Newtonsoft.Json;
 
 namespace ElasticsearchAPI.Services.Implementation;
 

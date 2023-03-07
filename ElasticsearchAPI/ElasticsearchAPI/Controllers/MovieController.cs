@@ -1,10 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using ElasticsearchAPI.Converters;
-using ElasticsearchAPI.Model;
 using ElasticsearchAPI.Services;
 using ElasticsearchAPI.Services.Implementation;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace ElasticsearchAPI.Controllers;
 

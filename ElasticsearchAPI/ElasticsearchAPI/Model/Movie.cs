@@ -1,7 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices;
-using Nest;
-
 namespace ElasticsearchAPI.Model;
 
 public record Movie
