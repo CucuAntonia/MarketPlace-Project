@@ -10,12 +10,14 @@ namespace ElasticsearchAPI.Controllers;
 public class MovieController : ControllerBase
 {
     #region Constructor and parameters
+
     private readonly IElasticService _elasticService;
+
     public MovieController()
     {
         _elasticService = new ElasticService();
     }
-    
+
     #endregion
 
     [HttpGet]
@@ -24,12 +26,31 @@ public class MovieController : ControllerBase
         try
         {
             var data = await _elasticService.GetAllData(data_type);
-            
-            return Ok(JsonLdConverter.ObjectToJsonLd(data,data_type));
+
+            return Ok(JsonLdConverter.ObjectToJsonLd(data, data_type));
         }
         catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);
         }
     }
+
+    #region Population Purpose
+
+    [HttpPost("populateDB")]
+    public async Task<ActionResult> PopulateDb()
+    {
+        try
+        {
+            await JsonLdConverter.Populate();
+
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    #endregion
 }

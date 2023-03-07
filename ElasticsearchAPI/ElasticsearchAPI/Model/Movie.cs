@@ -2,7 +2,7 @@ namespace ElasticsearchAPI.Model;
 
 public record Movie
 {
-    public Guid _Id { get; init; }
+    //public Guid _Id { get; init; }
     public string PosterLink { get; set; }
     public string SeriesTitle { get; set; }
     public int ReleaseYear { get; set; }
