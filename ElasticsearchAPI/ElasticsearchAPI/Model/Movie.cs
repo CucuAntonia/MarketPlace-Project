@@ -2,9 +2,6 @@ namespace ElasticsearchAPI.Model;
 
 public record Movie
 {
-    //public Guid _Id { get; init; }
-
-
     public Movie(string posterLink, string seriesTitle, string releasedYear, string certificate, string runtime, string genre, string imdbRating, string overview, string metaScore, string director, string star1, string star2, string star3, string star4, string noOfVotes, string gross)
     {
         Poster_Link = posterLink;
@@ -24,7 +21,6 @@ public record Movie
         No_of_Votes = noOfVotes;
         Gross = gross;
     }
-
     public string Poster_Link { get; set; }
     public string Series_Title { get; set; }
     public string Released_Year { get; set; }

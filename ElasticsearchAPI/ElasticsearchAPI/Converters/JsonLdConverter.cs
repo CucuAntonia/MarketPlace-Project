@@ -6,6 +6,9 @@ namespace ElasticsearchAPI.Converters;
 
 public static class JsonLdConverter
 {
+    //------------------------------------------------------------------------------------------------------------
+    //Function that converts the Elastic Search response from string to a JsonLd serialized object
+    //------------------------------------------------------------------------------------------------------------
     public static string ObjectToJsonLd(IEnumerable<object> response, string type)
     {
         var properResponse = JArray.Parse(JsonConvert.SerializeObject(response, Formatting.Indented));
@@ -23,10 +26,5 @@ public static class JsonLdConverter
             { "@list", properResponse }
         };
         return JsonConvert.SerializeObject(convertedObject);
-    }
-
-    public static Movie JsonLdToMovie()
-    {
-        throw new NotImplementedException();
     }
 }

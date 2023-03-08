@@ -51,20 +51,24 @@ public class ElasticService : IElasticService
 
         return searchResponse.Documents;
     }
-
-    public async Task PopulateMovieDb()
-    {
-        var json = await File.ReadAllTextAsync("C:\\Compendium\\ProiectePROG\\MoviesDataSets\\archive\\moviesDB.json");
-        var moviesArray = JArray.Parse(json);
-
-        foreach (var mvs in moviesArray)
-        {
-            var indexResponse = await _client.IndexAsync(mvs.ToObject<Movie>(), i => i.Index(IndexName));
-            
-            if (!indexResponse.IsValid)
-            {
-                throw new InvalidOperationException();
-            }
-        }
-    }
+    //------------------------------------------------------------------------------------------------------------
+    //Look up Interface for description
+    //------------------------------------------------------------------------------------------------------------
+    //
+    // public async Task PopulateMovieDb()
+    // {
+    //     var json = await File.ReadAllTextAsync("C:\\Compendium\\ProiectePROG\\MoviesDataSets\\archive\\moviesDB.json");
+    //     var moviesArray = JArray.Parse(json);
+    //
+    //     foreach (var mvs in moviesArray)
+    //     {
+    //         var indexResponse = await _client.IndexAsync(mvs.ToObject<Movie>(), i => i.Index(IndexName));
+    //         
+    //         if (!indexResponse.IsValid)
+    //         {
+    //             throw new InvalidOperationException();
+    //         }
+    //     }
+    // }
+    //------------------------------------------------------------------------------------------------------------
 }

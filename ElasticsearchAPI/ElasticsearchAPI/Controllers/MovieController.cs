@@ -36,21 +36,24 @@ public class MovieController : ControllerBase
     }
 
     #region Population Purpose
-
-    [HttpPost("populateDB")]
-    public async Task<ActionResult> PopulateDb()
-    {
-        try
-        {
-            await _elasticService.PopulateMovieDb();
-            
-            return Ok();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
+    //------------------------------------------------------------------------------------------------------------
+    // Http request used for populating the Elastic Search Database with Movie Objects
+    //------------------------------------------------------------------------------------------------------------
+    // [HttpPost("populateDB")]
+    // public async Task<ActionResult> PopulateDb()
+    // {
+    //     try
+    //     {
+    //         await _elasticService.PopulateMovieDb();
+    //         
+    //         return Ok();
+    //     }
+    //     catch (InvalidOperationException ex)
+    //     {
+    //         return BadRequest(ex.Message);
+    //     }
+    // }
+    //------------------------------------------------------------------------------------------------------------
 
     #endregion
 }
