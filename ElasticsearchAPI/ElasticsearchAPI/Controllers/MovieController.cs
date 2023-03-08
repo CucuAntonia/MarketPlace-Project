@@ -21,11 +21,11 @@ public class MovieController : ControllerBase
     #endregion
 
     [HttpGet]
-    public async Task<IActionResult> GetAllData([FromQuery] string data_type)
+    public async Task<IActionResult> GetAllData([FromQuery] string data_type,[FromQuery] bool snippet)
     {
         try
         {
-            var data = await _elasticService.GetAllData(data_type);
+            var data = await _elasticService.GetAllData(data_type,snippet);
 
             return Ok(JsonLdConverter.ObjectToJsonLd(data, data_type));
         }

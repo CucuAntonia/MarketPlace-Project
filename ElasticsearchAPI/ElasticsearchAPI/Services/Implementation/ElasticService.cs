@@ -37,19 +37,32 @@ public class ElasticService : IElasticService
 
     #endregion
 
-    public async Task<IEnumerable<object>> GetAllData(string type)
+    public async Task<IEnumerable<object>> GetAllData(string type, bool snippet)
     {
-        var searchResponse = await _client.SearchAsync<object>(s => s
-            .Index(IndexName)
-            .Query(q => q
-                .Match(m => m
-                    .Field("_type")
-                    .Query(type)
+        if (snippet)
+        {
+            var rnd = new Random().Next(1,20);
+            var searchResponse = _client.Search<object>(s => s
+                .Query(q => q.MatchAll())
+                .From(rnd)
+                .Size(rnd+20)
+            );
+            return searchResponse.Documents;
+        }
+        else
+        {
+            var searchResponse = await _client.SearchAsync<object>(s => s
+                .Index(IndexName)
+                .Query(q => q
+                    .Match(m => m
+                        .Field("_type")
+                        .Query(type)
+                    )
                 )
-            )
-        );
+            );
+            return searchResponse.Documents;
 
-        return searchResponse.Documents;
+        }
     }
     //------------------------------------------------------------------------------------------------------------
     //Look up Interface for description
