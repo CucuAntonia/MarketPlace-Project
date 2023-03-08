@@ -42,7 +42,8 @@ public class MovieController : ControllerBase
     {
         try
         {
-            //await _elasticService.PopulateMovieDb();
+            await _elasticService.PopulateMovieDb();
+            
             return Ok();
         }
         catch (InvalidOperationException ex)

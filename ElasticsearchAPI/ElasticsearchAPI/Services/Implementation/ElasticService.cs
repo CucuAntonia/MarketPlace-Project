@@ -1,4 +1,5 @@
 using ElasticsearchAPI.Model;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -42,7 +43,7 @@ public class ElasticService : IElasticService
             .Index(IndexName)
             .Query(q => q
                 .Match(m => m
-                    .Field("@type")
+                    .Field("_type")
                     .Query(type)
                 )
             )
@@ -54,46 +55,16 @@ public class ElasticService : IElasticService
     public async Task PopulateMovieDb()
     {
         var json = await File.ReadAllTextAsync("C:\\Compendium\\ProiectePROG\\MoviesDataSets\\archive\\moviesDB.json");
-        var myObjects = JsonConvert.DeserializeObject<IEnumerable<object>>(json);
-        var properResponse = JArray.Parse(JsonConvert.SerializeObject(myObjects, Formatting.Indented));
-        var contextObject = new JObject { { "@schema", "elasticsearch" } };
+        var moviesArray = JArray.Parse(json);
 
-        foreach (var value in properResponse)
+        foreach (var mvs in moviesArray)
         {
-            value.First?.AddBeforeSelf(new JProperty("@id", Guid.NewGuid()));
+            var indexResponse = await _client.IndexAsync(mvs.ToObject<Movie>(), i => i.Index(IndexName));
+            
+            if (!indexResponse.IsValid)
+            {
+                throw new InvalidOperationException();
+            }
         }
-
-        var convertedObject = new JObject
-        {
-            { "@context", contextObject },
-            { "@type", "movie" },
-            { "@list", properResponse }
-        };
-
-        var response = await _client.IndexDocumentAsync(JsonConvert.SerializeObject(convertedObject));
-    }
-
-    public async Task PopulateMovieDBWith2Items()
-    {
-        var searchResponse = await _client.SearchAsync<object>(s => s
-            .Index(IndexName)
-            .MatchAll()
-        );
-        var properResponse = JArray.Parse(JsonConvert.SerializeObject(searchResponse, Formatting.Indented));
-        var contextObject = new JObject { { "@schema", "elasticsearch" } };
-
-        foreach (var value in properResponse)
-        {
-            value.First?.AddBeforeSelf(new JProperty("@id", Guid.NewGuid()));
-        }
-
-        var convertedObject = new JObject
-        {
-            { "@context", contextObject },
-            { "@type", "movie" },
-            { "@list", properResponse }
-        };
-
-        var response = await _client.IndexDocumentAsync(JsonConvert.SerializeObject(convertedObject));
     }
 }
