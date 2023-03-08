@@ -41,11 +41,11 @@ public class ElasticService : IElasticService
     {
         if (snippet)
         {
-            var rnd = new Random().Next(1,20);
-            var searchResponse = _client.Search<object>(s => s
+            var rnd = new Random().Next(1, 20);
+            var searchResponse = await _client.SearchAsync<object>(s => s
                 .Query(q => q.MatchAll())
                 .From(rnd)
-                .Size(rnd+20)
+                .Size(rnd + 20)
             );
             return searchResponse.Documents;
         }
@@ -59,9 +59,10 @@ public class ElasticService : IElasticService
                         .Query(type)
                     )
                 )
+                .From(0)
+                .Size(900)
             );
             return searchResponse.Documents;
-
         }
     }
     //------------------------------------------------------------------------------------------------------------
