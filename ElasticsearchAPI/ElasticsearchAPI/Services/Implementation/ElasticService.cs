@@ -9,7 +9,7 @@ namespace ElasticsearchAPI.Services.Implementation;
 public class ElasticService : IElasticService
 {
     private readonly ElasticClient _client;
-    private const string IndexName = "movie-db-index";
+    private static string _indexName = "movie-db-index";
     private const string CloudUrl = "https://8f9677360fc34e2eb943d737b2597c7b.us-east-1.aws.found.io:9243";
     private const string Username = "elastic";
     private const string Password = "AWbtmGda2Q7BI2bYpdjyF4qd";
@@ -19,13 +19,13 @@ public class ElasticService : IElasticService
     public ElasticService()
     {
         var settings = new ConnectionSettings(new Uri(CloudUrl))
-            .DefaultIndex(IndexName)
+            .DefaultIndex(_indexName)
             .BasicAuthentication(Username, Password);
         _client = new ElasticClient(settings);
 
-        if (_client.Indices.Exists(IndexName).Exists) return;
+        if (_client.Indices.Exists(_indexName).Exists) return;
 
-        var createIndexResponse = _client.Indices.Create(IndexName, c => c
+        var createIndexResponse = _client.Indices.Create(_indexName, c => c
             .Map<Movie>(m => m.AutoMap())
         );
 
@@ -39,10 +39,11 @@ public class ElasticService : IElasticService
 
     public async Task<IEnumerable<object>> GetAllData(string type, bool snippet)
     {
+        await ChangeIndex(type);
         if (snippet)
         {
-            var countResponse = await _client.CountAsync<object>(c => c.Index(IndexName));
-            var rnd = new Random().Next(1, (int)countResponse.Count -20);
+            var countResponse = await _client.CountAsync<object>(c => c.Index(_indexName));
+            var rnd = new Random().Next(1, (int)countResponse.Count -11);
             var searchResponse = await _client.SearchAsync<object>(s => s
                 .Query(q => q.MatchAll())
                 .From(rnd)
@@ -52,7 +53,7 @@ public class ElasticService : IElasticService
         }
         else
         {
-            var countResponse = await _client.CountAsync<object>(c => c.Index(IndexName));
+            var countResponse = await _client.CountAsync<object>(c => c.Index(_indexName));
             var searchResponse = await _client.SearchAsync<object>(s => s
                 .Query(q => q.MatchAll())
                 .From(0)
@@ -60,6 +61,16 @@ public class ElasticService : IElasticService
             );
             return searchResponse.Documents;
         }
+    }
+    
+    private async Task ChangeIndex(string newIndexName)
+    {
+        var auxIndex = newIndexName + "-db-index";
+        if (!(await _client.Indices.ExistsAsync(auxIndex)).Exists)
+        {
+            throw new InvalidOperationException();
+        }
+        _indexName = auxIndex;
     }
     //------------------------------------------------------------------------------------------------------------
     //Look up Interface for description
