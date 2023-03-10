@@ -21,13 +21,20 @@ public class MovieController : ControllerBase
     #endregion
 
     [HttpGet]
-    public async Task<IActionResult> GetAllData([FromQuery] string data_type,[FromQuery] bool snippet)
+    public async Task<IActionResult> GetAllData([FromQuery] string data_type, [FromQuery] bool snippet)
     {
         try
         {
-            var data = await _elasticService.GetAllData(data_type,snippet);
-
-            return Ok(JsonLdConverter.ObjectToJsonLd(data, data_type));
+            if (!snippet)
+            {
+                var data = await _elasticService.GetAllData(data_type);
+                return Ok(JsonLdConverter.ObjectToJsonLd(data, data_type));
+            }
+            else
+            {
+                var data = await _elasticService.GetSnippetData(data_type);
+                return Ok(JsonLdConverter.ObjectToJsonLd(data, data_type));
+            }
         }
         catch (InvalidOperationException ex)
         {
@@ -36,6 +43,7 @@ public class MovieController : ControllerBase
     }
 
     #region Population Purpose
+
     //------------------------------------------------------------------------------------------------------------
     // Http request used for populating the Elastic Search Database with Movie Objects
     //------------------------------------------------------------------------------------------------------------

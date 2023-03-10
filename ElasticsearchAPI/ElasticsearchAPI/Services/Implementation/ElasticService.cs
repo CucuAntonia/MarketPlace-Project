@@ -37,32 +37,35 @@ public class ElasticService : IElasticService
 
     #endregion
 
-    public async Task<IEnumerable<object>> GetAllData(string type, bool snippet)
+    public async Task<IEnumerable<object>> GetAllData(string type)
     {
         await ChangeIndex(type);
-        if (snippet)
-        {
-            var countResponse = await _client.CountAsync<object>(c => c.Index(_indexName));
-            var rnd = new Random().Next(1, (int)countResponse.Count -11);
-            var searchResponse = await _client.SearchAsync<object>(s => s
-                .Query(q => q.MatchAll())
-                .From(rnd)
-                .Size(10)
-            );
-            return searchResponse.Documents;
-        }
-        else
-        {
-            var countResponse = await _client.CountAsync<object>(c => c.Index(_indexName));
-            var searchResponse = await _client.SearchAsync<object>(s => s
-                .Query(q => q.MatchAll())
-                .From(0)
-                .Size((int?)countResponse.Count)
-            );
-            return searchResponse.Documents;
-        }
+
+        var countResponse = await _client.CountAsync<object>(c => c.Index(_indexName));
+        var searchResponse = await _client.SearchAsync<object>(s => s
+            .Query(q => q.MatchAll())
+            .From(0)
+            .Size((int?)countResponse.Count)
+        );
+        
+        return searchResponse.Documents;
     }
-    
+
+    public async Task<IEnumerable<object>> GetSnippetData(string type)
+    {
+        await ChangeIndex(type);
+        
+        var countResponse = await _client.CountAsync<object>(c => c.Index(_indexName));
+        var rnd = new Random().Next(1, (int)countResponse.Count - 11);
+        var searchResponse = await _client.SearchAsync<object>(s => s
+            .Query(q => q.MatchAll())
+            .From(rnd)
+            .Size(10)
+        );
+        
+        return searchResponse.Documents;
+    }
+
     private async Task ChangeIndex(string newIndexName)
     {
         var auxIndex = newIndexName + "-db-index";
@@ -70,6 +73,7 @@ public class ElasticService : IElasticService
         {
             throw new InvalidOperationException();
         }
+
         _indexName = auxIndex;
     }
     //------------------------------------------------------------------------------------------------------------
