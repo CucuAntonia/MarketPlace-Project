@@ -41,26 +41,22 @@ public class ElasticService : IElasticService
     {
         if (snippet)
         {
-            var rnd = new Random().Next(1, 20);
+            var countResponse = await _client.CountAsync<object>(c => c.Index(IndexName));
+            var rnd = new Random().Next(1, (int)countResponse.Count -20);
             var searchResponse = await _client.SearchAsync<object>(s => s
                 .Query(q => q.MatchAll())
                 .From(rnd)
-                .Size(rnd + 20)
+                .Size(10)
             );
             return searchResponse.Documents;
         }
         else
         {
+            var countResponse = await _client.CountAsync<object>(c => c.Index(IndexName));
             var searchResponse = await _client.SearchAsync<object>(s => s
-                .Index(IndexName)
-                .Query(q => q
-                    .Match(m => m
-                        .Field("_type")
-                        .Query(type)
-                    )
-                )
+                .Query(q => q.MatchAll())
                 .From(0)
-                .Size(900)
+                .Size((int?)countResponse.Count)
             );
             return searchResponse.Documents;
         }
