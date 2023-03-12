@@ -28,11 +28,19 @@ public class MovieController : ControllerBase
             if (!snippet)
             {
                 var data = await _elasticService.GetAllData(data_type);
+                
+                //modifying the response to contain only good data
+                ValidationService.ValidateResponseData(ref data);
+                
                 return Ok(JsonLdConverter.ObjectToJsonLd(data, data_type));
             }
             else
             {
                 var data = await _elasticService.GetSnippetData(data_type);
+                
+                //modifying the response to contain only good data
+                ValidationService.ValidateResponseData(ref data);
+                
                 return Ok(JsonLdConverter.ObjectToJsonLd(data, data_type));
             }
         }
