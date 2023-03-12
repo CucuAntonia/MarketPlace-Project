@@ -2,6 +2,9 @@ namespace ElasticsearchAPI.Services.Implementation;
 
 public static class ValidationService
 {
+    //------------------------------------------------------------------------------------------------------------
+    //Function that filters useless data (30% or more missing properties per object) out of the response
+    //------------------------------------------------------------------------------------------------------------
     public static void ValidateResponseData(ref IEnumerable<object> response)
     {
         var objectsToRemove = new List<object>();
