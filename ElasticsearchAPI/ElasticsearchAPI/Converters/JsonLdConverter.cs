@@ -11,8 +11,8 @@ public static class JsonLdConverter
     //------------------------------------------------------------------------------------------------------------
     public static string ObjectToJsonLd(IEnumerable<object> response, string type)
     {
-        var properResponse = JArray.Parse(JsonConvert.SerializeObject(response, Formatting.Indented));
-        var contextObject = new JObject { { "@schema", "elasticsearch" } };
+        var properResponse = JArray.Parse(JsonConvert.SerializeObject(response));
+        var contextObject = new JObject { { "@schema", $"elasticsearch/{type}" } };
 
         foreach (var value in properResponse)
         {
@@ -22,7 +22,6 @@ public static class JsonLdConverter
         var convertedObject = new JObject
         {
             { "@context", contextObject },
-            { "@type", type },
             { "@list", properResponse }
         };
         return JsonConvert.SerializeObject(convertedObject);
