@@ -14,7 +14,6 @@ public static class ValidationService
                 objectsToRemove.Add(obj);
             }
         }
-        Console.WriteLine(objectsToRemove);
         response = objectsToRemove.Aggregate(response, (current, objToRemove) => current.Where(obj => !obj.Equals(objToRemove)));
     }
 }
