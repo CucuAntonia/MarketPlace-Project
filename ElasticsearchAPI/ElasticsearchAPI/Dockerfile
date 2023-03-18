@@ -95,7 +95,7 @@ COPY --from=build-env /app/out .
 #ENV Elasticsearch__Url=http://elasticsearch:9200
 
 # Expose the port
-EXPOSE 7193
+EXPOSE 80
 
 # Start the application
 ENTRYPOINT ["dotnet", "ElasticsearchAPI.dll"]
