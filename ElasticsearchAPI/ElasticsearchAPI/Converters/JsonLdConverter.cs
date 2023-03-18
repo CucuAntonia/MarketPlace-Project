@@ -26,4 +26,16 @@ public static class JsonLdConverter
         };
         return JsonConvert.SerializeObject(convertedObject);
     }
+    public static string MetaToJsonLd(IEnumerable<object> response)
+    {
+        
+        var contextObject = new JObject { { "@schema", $"elasticsearch" } };
+        
+        var convertedObject = new JObject
+        {
+            { "@context", contextObject },
+            { "properties", response.ToString() }
+        };
+        return JsonConvert.SerializeObject(convertedObject);
+    }
 }

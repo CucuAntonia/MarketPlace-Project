@@ -2,6 +2,7 @@ using ElasticsearchAPI.Converters;
 using ElasticsearchAPI.Services;
 using ElasticsearchAPI.Services.Implementation;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace ElasticsearchAPI.Controllers;
 
@@ -25,8 +26,8 @@ public class MetaController : ControllerBase
     {
         try
         {
-
-            return Ok();
+            var data = await _elasticService.GetAllIndices();
+            return Ok(JsonLdConverter.MetaToJsonLd(data));
         }
         catch (InvalidOperationException ex)
         {

@@ -66,6 +66,13 @@ public class ElasticService : IElasticService
         return searchResponse.Documents;
     }
 
+    public async Task<IEnumerable<object>> GetAllIndices()
+    {
+        var indicesResponse = await _client.Indices.GetAsync(Indices.All);
+
+        return indicesResponse.Indices.Keys;
+    }
+
     private async Task ChangeIndex(string newIndexName)
     {
         var auxIndex = newIndexName + "-db-index";
