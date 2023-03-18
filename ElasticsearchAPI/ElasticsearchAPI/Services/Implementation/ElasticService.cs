@@ -47,14 +47,14 @@ public class ElasticService : IElasticService
             .From(0)
             .Size((int?)countResponse.Count)
         );
-        
+
         return searchResponse.Documents;
     }
 
     public async Task<IEnumerable<object>> GetSnippetData(string type)
     {
         await ChangeIndex(type);
-        
+
         var countResponse = await _client.CountAsync<object>(c => c.Index(_indexName));
         var rnd = new Random().Next(1, (int)countResponse.Count - 11);
         var searchResponse = await _client.SearchAsync<object>(s => s
@@ -62,27 +62,28 @@ public class ElasticService : IElasticService
             .From(rnd)
             .Size(10)
         );
-        
+
         return searchResponse.Documents;
     }
 
-    public async Task<Dictionary<string,string>> GetAllIndicesProperties()
+    public async Task<Dictionary<string, string>> GetAllIndicesProperties()
     {
         var indicesResponse = await _client.Cat.IndicesAsync();
         var indices = indicesResponse.Records
             .Where(r => r.Index.Contains("-db-index"))
             .Select(r => r.Index);
-        
-        var propDictionary = new Dictionary<string, string>();
-        foreach (var index in indices)
+
+        var tasks = indices.Select(async index =>
         {
             var mappingResponse = await _client.Indices.GetMappingAsync(new GetMappingRequest(index));
             var properties = mappingResponse.Indices[index].Mappings.Properties;
-            var propString = properties.Aggregate(string.Empty, (current, property) => current + property.Key+",").TrimEnd(',');
-            propDictionary.Add(index,propString);
-        }
-        
-        return propDictionary;
+            var propString = string.Join(",", properties.Keys);
+            return new KeyValuePair<string, string>(index, propString);
+        });
+
+        var results = await Task.WhenAll(tasks);
+
+        return results.ToDictionary(pair => pair.Key, pair => pair.Value);
     }
 
     private async Task ChangeIndex(string newIndexName)
