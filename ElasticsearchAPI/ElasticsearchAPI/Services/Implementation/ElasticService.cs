@@ -66,14 +66,23 @@ public class ElasticService : IElasticService
         return searchResponse.Documents;
     }
 
-    public async Task<IEnumerable<object>> GetAllIndices()
+    public async Task<Dictionary<string,string>> GetAllIndicesProperties()
     {
         var indicesResponse = await _client.Cat.IndicesAsync();
         var indices = indicesResponse.Records
             .Where(r => r.Index.Contains("-db-index"))
             .Select(r => r.Index);
         
-        return indices;
+        var propDictionary = new Dictionary<string, string>();
+        foreach (var index in indices)
+        {
+            var mappingResponse = await _client.Indices.GetMappingAsync(new GetMappingRequest(index));
+            var properties = mappingResponse.Indices[index].Mappings.Properties;
+            var propString = properties.Aggregate(string.Empty, (current, property) => current + property.Key+",").TrimEnd(',');
+            propDictionary.Add(index,propString);
+        }
+        
+        return propDictionary;
     }
 
     private async Task ChangeIndex(string newIndexName)

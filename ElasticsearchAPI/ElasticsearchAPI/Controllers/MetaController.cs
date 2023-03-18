@@ -26,8 +26,8 @@ public class MetaController : ControllerBase
     {
         try
         {
-            var data = await _elasticService.GetAllIndices();
-            return Ok(JsonLdConverter.MetaToJsonLd(data));
+            var data = await _elasticService.GetAllIndicesProperties();
+            return Ok(JsonLdConverter.MetaDictionaryToJsonLd(data));
         }
         catch (InvalidOperationException ex)
         {

@@ -12,7 +12,7 @@ public static class JsonLdConverter
     public static string ObjectToJsonLd(IEnumerable<object> response, string type)
     {
         var properResponse = JArray.Parse(JsonConvert.SerializeObject(response));
-        var contextObject = new JObject { { "@schema", $"elasticsearch/{type}" } };
+        var contextObject = new JObject { { "@schema", $"ElasticSearch/{type}" } };
 
         foreach (var value in properResponse)
         {
@@ -26,16 +26,21 @@ public static class JsonLdConverter
         };
         return JsonConvert.SerializeObject(convertedObject);
     }
-    public static string MetaToJsonLd(IEnumerable<object> response)
+    public static string MetaDictionaryToJsonLd(Dictionary<string,string> response)
     {
         
-        var contextObject = new JObject { { "@schema", $"elasticsearch" } };
+        var contextObject = new JObject { { "@schema", $"ElasticSearch" } };
         
         var convertedObject = new JObject
         {
             { "@context", contextObject },
-            { "properties", response.ToString() }
         };
+
+        foreach (var pair in response)
+        {
+            convertedObject.Add(pair.Key,pair.Value);
+        }
+        
         return JsonConvert.SerializeObject(convertedObject);
     }
 }

@@ -7,8 +7,8 @@ public interface IElasticService
 
     Task<IEnumerable<object>> GetSnippetData(string type);
 
-    Task<IEnumerable<object>> GetAllIndices();   
-    //------------------------------------------------------------------------------------------------------------
+    Task<Dictionary<string,string>> GetAllIndicesProperties();
+//------------------------------------------------------------------------------------------------------------
     //Function used to populate the Elastic Search Database with Movie Objects using a Json file
     //------------------------------------------------------------------------------------------------------------
     //
