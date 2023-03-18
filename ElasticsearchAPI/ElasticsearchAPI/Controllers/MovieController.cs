@@ -30,7 +30,7 @@ public class MovieController : ControllerBase
                 var data = await _elasticService.GetAllData(data_type);
                 
                 //modifying the response to contain only good data
-                ValidationService.ValidateResponseData(ref data);
+                //ValidationService.ValidateResponseData(ref data);
                 
                 return Ok(JsonLdConverter.ObjectToJsonLd(data, data_type));
             }
@@ -39,7 +39,7 @@ public class MovieController : ControllerBase
                 var data = await _elasticService.GetSnippetData(data_type);
                 
                 //modifying the response to contain only good data
-                ValidationService.ValidateResponseData(ref data);
+                //ValidationService.ValidateResponseData(ref data);
                 
                 return Ok(JsonLdConverter.ObjectToJsonLd(data, data_type));
             }
