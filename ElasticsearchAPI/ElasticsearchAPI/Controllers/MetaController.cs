@@ -16,7 +16,7 @@ public class MetaController : ControllerBase
 
     public MetaController()
     {
-        _elasticService = new ElasticService();
+        _elasticService = ElasticService.Instance;
     }
 
     #endregion

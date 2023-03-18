@@ -15,7 +15,7 @@ public class MovieController : ControllerBase
 
     public MovieController()
     {
-        _elasticService = new ElasticService();
+        _elasticService = ElasticService.Instance;
     }
 
     #endregion

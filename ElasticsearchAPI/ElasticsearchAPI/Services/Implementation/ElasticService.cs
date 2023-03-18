@@ -1,8 +1,5 @@
 using ElasticsearchAPI.Model;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Nest;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace ElasticsearchAPI.Services.Implementation;
 
@@ -13,17 +10,33 @@ public class ElasticService : IElasticService
     private const string CloudUrl = "https://8f9677360fc34e2eb943d737b2597c7b.us-east-1.aws.found.io:9243";
     private const string Username = "elastic";
     private const string Password = "AWbtmGda2Q7BI2bYpdjyF4qd";
+    private Dictionary<string, long>? Indices { get; set; }
 
     #region Constructor
 
-    public ElasticService()
+    private static readonly Lazy<ElasticService> _instance = new(() => new ElasticService());
+
+    public static ElasticService Instance => _instance.Value;
+
+    private ElasticService()
     {
         var settings = new ConnectionSettings(new Uri(CloudUrl))
             .DefaultIndex(_indexName)
             .BasicAuthentication(Username, Password);
         _client = new ElasticClient(settings);
+        Indices = new Dictionary<string, long>();
+        if (_client.Indices.Exists(_indexName).Exists)
+        {
+            var dbIndices = _client.Cat.Indices().Records
+                .Where(r => r.Index.Contains("-db-index"))
+                .Select(r => r.Index).ToList();
+            foreach (var index in dbIndices)
+            {
+                Indices.Add(index, _client.Count<object>(c => c.Index(_indexName)).Count);
+            }
 
-        if (_client.Indices.Exists(_indexName).Exists) return;
+            return;
+        }
 
         var createIndexResponse = _client.Indices.Create(_indexName, c => c
             .Map<Movie>(m => m.AutoMap())
@@ -39,13 +52,13 @@ public class ElasticService : IElasticService
 
     public async Task<IEnumerable<object>> GetAllData(string type)
     {
-        await ChangeIndex(type);
+        ChangeIndex(type);
 
-        var countResponse = await _client.CountAsync<object>(c => c.Index(_indexName));
+        if (Indices == null) throw new InvalidOperationException();
         var searchResponse = await _client.SearchAsync<object>(s => s
             .Query(q => q.MatchAll())
             .From(0)
-            .Size((int?)countResponse.Count)
+            .Size((int)Indices[_indexName])
         );
 
         return searchResponse.Documents;
@@ -53,10 +66,10 @@ public class ElasticService : IElasticService
 
     public async Task<IEnumerable<object>> GetSnippetData(string type)
     {
-        await ChangeIndex(type);
+        ChangeIndex(type);
 
-        var countResponse = await _client.CountAsync<object>(c => c.Index(_indexName));
-        var rnd = new Random().Next(1, (int)countResponse.Count - 11);
+        if (Indices == null) throw new InvalidOperationException();
+        var rnd = new Random().Next(1, (int)(Indices[_indexName] - 11));
         var searchResponse = await _client.SearchAsync<object>(s => s
             .Query(q => q.MatchAll())
             .From(rnd)
@@ -68,12 +81,8 @@ public class ElasticService : IElasticService
 
     public async Task<Dictionary<string, string>> GetAllIndicesProperties()
     {
-        var indicesResponse = await _client.Cat.IndicesAsync();
-        var indices = indicesResponse.Records
-            .Where(r => r.Index.Contains("-db-index"))
-            .Select(r => r.Index);
-
-        var tasks = indices.Select(async index =>
+        if (Indices == null) throw new InvalidOperationException();
+        var tasks = Indices.Keys.Select(async index =>
         {
             var mappingResponse = await _client.Indices.GetMappingAsync(new GetMappingRequest(index));
             var properties = mappingResponse.Indices[index].Mappings.Properties;
@@ -86,10 +95,10 @@ public class ElasticService : IElasticService
         return results.ToDictionary(pair => pair.Key, pair => pair.Value);
     }
 
-    private async Task ChangeIndex(string newIndexName)
+    private void ChangeIndex(string newIndexName)
     {
         var auxIndex = newIndexName + "-db-index";
-        if (!(await _client.Indices.ExistsAsync(auxIndex)).Exists)
+        if (Indices != null && !Indices.ContainsKey(auxIndex))
         {
             throw new InvalidOperationException();
         }
