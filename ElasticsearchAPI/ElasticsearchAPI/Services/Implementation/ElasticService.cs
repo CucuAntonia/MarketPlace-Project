@@ -32,7 +32,7 @@ public class ElasticService : IElasticService
                 .Select(r => r.Index).ToList();
             foreach (var index in dbIndices)
             {
-                Indices.Add(index, _client.Count<object>(c => c.Index(_indexName)).Count);
+                Indices.Add(index, _client.Count<object>(c => c.Index(index)).Count);
             }
 
             return;
@@ -56,6 +56,7 @@ public class ElasticService : IElasticService
 
         if (Indices == null) throw new InvalidOperationException();
         var searchResponse = await _client.SearchAsync<object>(s => s
+            .Index(_indexName)
             .Query(q => q.MatchAll())
             .From(0)
             .Size((int)Indices[_indexName])
@@ -71,6 +72,7 @@ public class ElasticService : IElasticService
         if (Indices == null) throw new InvalidOperationException();
         var rnd = new Random().Next(1, (int)(Indices[_indexName] - 11));
         var searchResponse = await _client.SearchAsync<object>(s => s
+            .Index(_indexName)
             .Query(q => q.MatchAll())
             .From(rnd)
             .Size(10)
